@@ -1,0 +1,88 @@
+{
+	"AWSTemplateFormatVersion" : "2010-09-09",
+
+	"Description" : "Sample Template for validation...",
+
+	"Parameters" : {
+
+		"WEBInstanceClass" : {
+			"Default" : "t2.small",
+			"Description" : "WEB InstanceType",
+			"Type" : "String",
+			"AllowedValues" : ["t2.medium", "t2.small", "t2.micro", "m3.medium", "m3.large", "m3.xlarge"],
+			"ConstraintDescription": "must select a valid instance type."
+		},
+		"DBInstanceClass" : {
+			"Default" : "db.t2.small",
+			"Description" : "DB InstanceType",
+			"Type" : "String",
+			"AllowedValues" : ["db.t2.small", "db.t2.small", "db.m1.large", "db.m1.xlarge"],
+			"ConstraintDescription": "must select a valid database instance type."
+		},
+		"KeyName" : {
+			"Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+			"Type" : "AWS::EC2::KeyPair::KeyName",
+			"ConstraintDescription" : "must be the name of an existing EC2 KeyPair."
+		}
+
+	},
+
+	"Mappings" : {
+
+		"AWSRegionArch2AMI" : {
+			"us-east-1" : { "PV64" : "ami-50842d38", "HVM64" : "ami-08842d60", "HVMG2" : "ami-3a329952" },
+			"us-west-1" : { "PV64" : "ami-50842d38", "HVM64" : "ami-08842d60", "HVMG2" : "ami-3a329952" },
+			"us-west-2" : { "PV64" : "ami-50842d38", "HVM64" : "ami-08842d60", "HVMG2" : "ami-3a329952" },
+			"eu-west-1" : { "PV64" : "ami-50842d38", "HVM64" : "ami-08842d60", "HVMG2" : "ami-3a329952" },
+			"eu-central-1" : { "PV64" : "ami-50842d38", "HVM64" : "ami-08842d60", "HVMG2" : "ami-3a329952" },
+			"ap-southeast-1" : { "PV64" : "ami-20e1c572", "HVM64" : "ami-d6e1c584", "HVMG2" : "ami-fabe9aa8" },
+			"ap-southeast-2" : { "PV64" : "ami-8b4724b1", "HVM64" : "ami-fd4724c7", "HVMG2" : "ami-e98ae9d3" },
+			"ap-northeast-1" : { "PV64" : "ami-21072820", "HVM64" : "ami-35072834", "HVMG2" : "ami-5dd1ff5c" },
+			"sa-east-1" : { "PV64" : "ami-50842d38", "HVM64" : "ami-08842d60", "HVMG2" : "ami-3a329952" }
+		}
+
+	},
+
+	"Conditions" : {
+
+	},
+
+	"Resources" : {
+		"RedmineServer" : {
+			"Type" : "AWS::EC2::Instance",
+			"Properties" : {
+				"ImageId" : {"Fn::FindInMap" : ["AWSRegionArch2AMI", {"Ref" : "AWS::Region"}, "HVM64"]},
+				"InstanceType" : {"Ref" : "WEBInstanceClass"},
+				"SubnetId" : "subnet-5fcb5c37",
+				"SecurityGroupIds" : ["sg-5d30d732"],
+				"KeyName" : {"Ref" : "KeyName"},
+				"Tags" : [
+					{"Key": "Description", "Value" : "RedmineServer"}
+				]
+			}
+		},
+		"RedmineDataStore" : {
+			"Type" : "AWS::RDS::DBInstance",
+			"Properties" : {
+				"DBInstanceClass"	 : {"Ref" : "DBInstanceClass"},
+				"AllocatedStorage"	 : "10",
+				"DBName"			 : "redmine",
+				"Engine"			 : "MySQL",
+				"MasterUsername"	 : "admin",
+				"MasterUserPassword" : "password",
+				"DBSubnetGroupName"	 : "db-tier",
+				"VPCSecurityGroups"	 : ["sg-dc4a94b9"],
+				"Tags" : [
+					{"Key": "Description", "Value" : "DataStore for Redmine"}
+				]
+			}
+		}
+	},
+
+	"Outputs" : {
+		"SiteURL" : {
+			"Value" : "provisioned resource-endpoint",
+			"Description" : "xxxx"
+		}
+	}
+}
