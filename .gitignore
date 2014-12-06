@@ -1,3 +1,9 @@
+# for Ruby Project
+.bundle
+.config
+
 # for bundler
 Gemfile.lock
 vendor/bundle
+
+
