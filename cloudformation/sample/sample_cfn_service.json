@@ -48,7 +48,7 @@
 	},
 
 	"Resources" : {
-		"RedmineServer" : {
+		"RedmineWEBServer" : {
 			"Type" : "AWS::EC2::Instance",
 			"Properties" : {
 				"ImageId" : {"Fn::FindInMap" : ["AWSRegionArch2AMI", {"Ref" : "AWS::Region"}, "HVM64"]},
@@ -81,8 +81,12 @@
 
 	"Outputs" : {
 		"SiteURL" : {
-			"Value" : "provisioned resource-endpoint",
-			"Description" : "xxxx"
+			"Value" : {"Fn::Join" : ["", ["http://", {"Fn::GetAtt" : ["RedmineWEBServer", "PublicDnsName"]}]]},
+			"Description" : "URL for provisioned redmine-stack."
+		},
+		"DBEndpoint" : {
+			"Value" : {"Fn::Join" : [":", [{"Fn::GetAtt" : ["RedmineDataStore", "Endpoint.Address"]}, {"Fn::GetAtt" : ["RedmineDataStore", "Endpoint.Port"]}]]},
+			"Description" : "Database endpoint FQDN for redmine datastore."
 		}
 	}
 }
